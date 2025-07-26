@@ -25,7 +25,7 @@ set_target_properties(amplituda-swresample PROPERTIES IMPORTED_LOCATION
 add_library(amplituda-native-lib SHARED amplituda-native-lib.cpp)
 set_target_properties(amplituda-native-lib PROPERTIES LINKER_LANGUAGE CXX)
 
-#find_library( log-lib log )
+find_library( log-lib log )
 
 target_link_libraries(
         amplituda-native-lib
@@ -33,5 +33,5 @@ target_link_libraries(
         amplituda-avformat
         amplituda-avcodec
         amplituda-swresample
-#        ${log-lib}
+        ${log-lib}
 )

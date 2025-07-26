@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         Amplituda amplituda = new Amplituda(this);
         amplituda.setLogConfig(Log.ERROR, true);
         amplituda.processAudio(
-                "/storage/emulated/0/Music/Linc - Amplituda.mp3",
+                "/sdcard/Download/Linc - Amplituda.mp3",
                 Compress.withParams(Compress.PEAK, 1),
                 Cache.withParams(Cache.REFRESH),
                 new AmplitudaProgressListener() {
@@ -63,7 +63,13 @@ public class MainActivity extends AppCompatActivity {
                         System.out.printf("%s: %d%% %n", currentOperation, progress);
                     }
                 }
-        ).get(this::printResult, Throwable::printStackTrace);
+        ).get(this::printCompactResult, Throwable::printStackTrace);
+    }
+
+    private void printCompactResult(AmplitudaResult<?> result) {
+        System.out.println("Amplituda: No of samples in 1s: " + result.amplitudesForSecond(1).size());
+        System.out.println("Amplituda: Total No of samples: " + result.amplitudesAsList().size());
+        System.out.println("Amplituda: Audio Duration: " + result.getAudioDuration(AmplitudaResult.DurationUnit.SECONDS));
     }
 
     private void printResult(AmplitudaResult<?> result) {

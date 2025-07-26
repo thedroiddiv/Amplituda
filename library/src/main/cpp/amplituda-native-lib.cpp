@@ -3,7 +3,7 @@
 #include <vector>
 #include "error_code.h"
 #include "compress_type.h"
-//#include <android/log.h>
+#include <android/log.h>
 
 extern "C" {
 #include "libavutil/timestamp.h"
@@ -350,6 +350,12 @@ Java_com_linc_amplituda_Amplituda_amplitudesFromAudioJNI(
     // prepare duration from time base to seconds
     duration = fmt_ctx->duration * av_q2d(AV_TIME_BASE_Q);
 
+    if(preferred_frames_per_second < audio_dec_ctx->sample_rate ) {
+        audio_dec_ctx->frame_size = (int)  audio_dec_ctx->sample_rate / preferred_frames_per_second;
+    } else {
+        audio_dec_ctx->frame_size = audio_dec_ctx->sample_rate;
+    }
+
     // full formula: (channels * rate * duration [seconds]) / frame_size
     // amplituda case - 1 [channel] instead of audio_dec_ctx->channels
     // also prevent division by zero exception
@@ -362,7 +368,18 @@ Java_com_linc_amplituda_Amplituda_amplitudesFromAudioJNI(
     }
 
     // prepare compression params
-    actual_frames_per_second = (int) (nb_frames / duration);
+     actual_frames_per_second = (int) ((float) nb_frames / (float) duration);
+    if(actual_frames_per_second <= 0) {
+        actual_frames_per_second = 1;
+    }
+
+    __android_log_print(ANDROID_LOG_INFO, "Amplituda", "SampleRate: %d \t Preferred FPS %d: \t Actual FPS: %d \t Frame Size: %d",
+                        audio_dec_ctx->sample_rate,
+                        preferred_frames_per_second,
+                        actual_frames_per_second,
+                        audio_dec_ctx->frame_size
+    );
+
 
     // cannot compress this audio data
     if(nb_frames == 0) {
